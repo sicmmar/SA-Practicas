@@ -1,0 +1,9 @@
+# archivos ignorados para la práctica 1
+Practica_1/Login/node_modules/
+Practica_1/Cliente/node_modules/
+Practica_1/Repartidor/node_modules/
+Practica_1/Restaurante/node_modules/
+Practica_1/tk_sha.js
+
+# archivos ignorados para la práctica 2
+Practica_2/App/.vscode/
