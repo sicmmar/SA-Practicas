@@ -43,18 +43,9 @@ pipeline {
             }
         }
 
-        stage ('install mvn') {
-            dir('Practica_2/App/src/test'){
-                sh '''mvn install'''
-            }
-        }
-
         stage('SonarQube analysis') {
-            dir('Practica_2/App/src/test'){
-                environment {
-                    SCANNER_HOME = tool 'ServerSonarQube'
-                }
-                steps {
+            steps {
+                dir('Practica_2/App/src/test'){
                     withSonarQubeEnv(credentialsId: 'SonarQubeToken', installationName: 'Practica4SonarQube') {
                         sh 'export MAVEN_HOME=/opt/maven'
                         sh 'export PATH=$PATH:$MAVEN_HOME/bin'
@@ -62,8 +53,7 @@ pipeline {
                         sh 'mvn clean package sonar:sonar'
                     }
                 }
-            }
-            
+            }            
         }
     }
 }
