@@ -1,6 +1,9 @@
 pipeline {
     agent any
-    tools {nodejs "node"}
+    tools {
+        nodejs "node"
+        maven "Maven 3.8.4"
+    }
     stages {
         stage ('git configure'){
             steps {
@@ -27,8 +30,7 @@ pipeline {
         stage ('build') {
             steps {
                 dir('Practica_2/App'){
-                    sh 'chmod 777 /home'
-                    sh 'sudo npm run ng build --configuration="production" --optimization --build-optimizer'
+                    sh 'npm run ng build --configuration="production" --optimization --build-optimizer'
                 }
             }
         }
@@ -36,9 +38,32 @@ pipeline {
         stage ('deploy') {
             steps {
                 dir('Practica_2/App'){
-                    sh 'mv dist/app/* /home'
+                    sh 'echo "mv dist/app/* /usr/share/nginx/html"'
                 }
             }
+        }
+
+        stage ('install mvn') {
+            dir('Practica_2/App/src/test'){
+                sh '''mvn install'''
+            }
+        }
+
+        stage('SonarQube analysis') {
+            dir('Practica_2/App/src/test'){
+                environment {
+                    SCANNER_HOME = tool 'ServerSonarQube'
+                }
+                steps {
+                    withSonarQubeEnv(credentialsId: 'SonarQubeToken', installationName: 'Practica4SonarQube') {
+                        sh 'export MAVEN_HOME=/opt/maven'
+                        sh 'export PATH=$PATH:$MAVEN_HOME/bin'
+                        sh 'mvn --version'
+                        sh 'mvn clean package sonar:sonar'
+                    }
+                }
+            }
+            
         }
     }
 }
