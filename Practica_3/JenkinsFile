@@ -44,16 +44,21 @@ pipeline {
         }
 
         stage('SonarQube analysis') {
+            environment {
+                scannerHome = tool 'ServerSonarQube'
+            }
             steps {
-                dir('Practica_2/App/src/test'){
-                    withSonarQubeEnv(credentialsId: 'SonarQubeToken', installationName: 'Practica4SonarQube') {
-                        sh 'export MAVEN_HOME=/opt/maven'
-                        sh 'export PATH=$PATH:$MAVEN_HOME/bin'
-                        sh 'mvn --version'
-                        sh 'mvn clean package sonar:sonar'
-                    }
+                withSonarQubeEnv(credentialsId: 'SonarQubeToken', installationName: 'Practica4SonarQube') {
+                    sh '''
+                    ${scannerHome}/bin/sonar-scanner \
+                    -D sonar.host.url=http://34.121.64.31:9000 \
+                    -D sonar.projectKey=practica4 \
+                    -D sonar.projectName=practica4 \
+                    -D sonar.login=admin \
+                    -D sonar.password=1897
+                    '''
                 }
-            }            
+            }
         }
     }
 }
