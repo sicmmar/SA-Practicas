@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    tools {nodejs "node"}
+    stages {
+        stage ('git configure'){
+            steps {
+                git branch : 'main', url : 'https://github.com/sicmmar/SA-Practicas'
+            }
+        }
+
+        stage ('install') {
+            steps {
+                dir('Practica_2/App'){
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage ('test') {
+            steps {
+                dir('Practica_2/App'){
+                    sh 'npm run test'
+                }
+            }
+        }
+
+        stage ('build') {
+            steps {
+                dir('Practica_2/App'){
+                    sh 'chmod 777 /home'
+                    sh 'sudo npm run ng build --configuration="production" --optimization --build-optimizer'
+                }
+            }
+        }
+
+        stage ('deploy') {
+            steps {
+                dir('Practica_2/App'){
+                    sh 'mv dist/app/* /home'
+                }
+            }
+        }
+    }
+}
