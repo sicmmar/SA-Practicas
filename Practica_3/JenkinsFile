@@ -1,9 +1,15 @@
 pipeline {
     agent any
+
     tools {
         nodejs "node"
         maven "Maven 3.8.4"
     }
+
+    environment {
+        DOCKERHUB_CREDENTIALS=credentials('docker-hub-cred')
+    }
+
     stages {
         stage ('git configure'){
             steps {
@@ -11,27 +17,28 @@ pipeline {
             }
         }
 
-        stage ('install') {
+        stage ('build with npm & docker') {
             steps {
                 dir('Practica_2/App'){
                     sh 'npm install'
+                    sh 'docker build -t sicmmar/appPractica6 .'
                 }
             }
         }
 
-        stage ('test') {
+        stage ('test with karma') {
             steps {
                 dir('Practica_2/App'){
-                    sh 'apt-get update'
+                    sh 'sudo apt-get update'
                     sh 'wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb'
-                    sh 'apt install -y ./google-chrome*.deb;'
+                    sh 'sudo apt install -y ./google-chrome*.deb;'
                     sh 'export CHROME_BIN=/usr/bin/google-chrome'
                     sh 'ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI'
                 }
             }
         }
 
-        stage ('build') {
+        stage ('release with npm') {
             steps {
                 dir('Practica_2/App'){
                     sh 'npm run ng build --configuration="production" --optimization --build-optimizer'
@@ -39,7 +46,19 @@ pipeline {
             }
         }
 
-        stage('SonarQube analysis') {
+        stage ('deploy with docker hub') {
+            dir('Practica_2/App'){
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+
+        stage ('operate with puppet') {
+            dir('Practica_2/App'){
+                
+            }
+        }
+
+        stage('monitor with sonarqube') {
             environment {
                 scannerHome = tool 'ServerSonarQube'
             }
@@ -53,16 +72,6 @@ pipeline {
                     -D sonar.login=admin \
                     -D sonar.password=1897
                     '''
-                }
-            }
-        }
-
-        stage ('packing') {
-            steps {
-                dir('Practica_2/App/dist'){
-                    sh 'zip -r app.zip ./'
-                    sh 'cp app.zip /home/jenkins'
-                    echo 'Se ha empaquetado'
                 }
             }
         }
