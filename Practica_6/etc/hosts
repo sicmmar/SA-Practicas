@@ -1,0 +1,16 @@
+35.231.183.133 puppetmaster puppet
+34.138.5.34 puppetdev
+35.196.69.225 puppetprod
+
+[main]
+certname = puppetdev
+server = puppet
+
+[main]
+certname = puppetprod
+server = puppet
+
+
+# ruta de los manifest
+/etc/puppetlabs/code/environments/production/manifests/
+/etc/puppetlabs/code/environments/production/manifests/site.pp

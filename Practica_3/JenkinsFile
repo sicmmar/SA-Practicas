@@ -21,7 +21,8 @@ pipeline {
             steps {
                 dir('Practica_2/App'){
                     sh 'npm install'
-                    sh 'docker build -t sicmmar/appPractica6 .'
+                    sh 'docker build -t app-practica6:latest .'
+                    sh 'docker ps -a'
                 }
             }
         }
@@ -29,11 +30,7 @@ pipeline {
         stage ('test with karma') {
             steps {
                 dir('Practica_2/App'){
-                    sh 'sudo apt-get update'
-                    sh 'wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb'
-                    sh 'sudo apt install -y ./google-chrome*.deb;'
-                    sh 'export CHROME_BIN=/usr/bin/google-chrome'
-                    sh 'ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI'
+                    sh 'npm run ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI'
                 }
             }
         }
@@ -47,14 +44,21 @@ pipeline {
         }
 
         stage ('deploy with docker hub') {
-            dir('Practica_2/App'){
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            steps {
+                dir('Practica_2/App'){
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh 'docker tag app-practica6:latest sicmmar/app-practica6:latest'
+                    sh 'docker push sicmmar/app-practica6:latest'
+                    sh 'docker ps -a'
+                }
             }
         }
 
         stage ('operate with puppet') {
-            dir('Practica_2/App'){
-                
+            steps {
+                dir('Practica_2/App'){
+                    
+                }
             }
         }
 
