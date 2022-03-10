@@ -4,6 +4,8 @@ pipeline {
     tools {
         nodejs "node"
         maven "Maven 3.8.4"
+        gcloud "gcloud"
+        jdk 'java'
     }
 
     environment {
@@ -30,6 +32,7 @@ pipeline {
         stage ('test with karma') {
             steps {
                 dir('Practica_2/App'){
+                    sh 'export CHROME_BIN=/usr/bin/chromium'
                     sh 'npm run ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI'
                 }
             }
@@ -57,7 +60,15 @@ pipeline {
         stage ('operate with puppet') {
             steps {
                 dir('Practica_2/App'){
-                    
+                    withEnv(['GCLOUD_PATH=/var/lib/jenkins/google-cloud-sdk/bin']) {
+                        sh "$GCLOUD_PATH/gcloud auth activate-service-account --key-file '/var/lib/jenkins/key-gcp.json'"
+                        sh "$GCLOUD_PATH/gcloud config set project tokyo-eye-341903"
+                        sh "$GCLOUD_PATH/gcloud compute ssh --zone us-east1-c sicmariana8@puppet-master -- 'export PATH=/opt/puppetlabs/bin/:$PATH && puppet --version && puppet cert list --all && puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'"
+                        sh "$GCLOUD_PATH/gcloud compute ssh --zone us-east1-c sicmariana8@puppet-dev -- 'export PATH=/opt/puppetlabs/bin/:$PATH && puppet --version && puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp && docker ps'"
+                        sh "$GCLOUD_PATH/gcloud compute ssh --zone us-east1-c sicmariana8@puppet-prod -- 'export PATH=/opt/puppetlabs/bin/:$PATH && puppet --version && puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp && docker ps'"
+
+                        echo "Instance started"
+                    }
                 }
             }
         }
@@ -67,7 +78,7 @@ pipeline {
                 scannerHome = tool 'ServerSonarQube'
             }
             steps {
-                withSonarQubeEnv(credentialsId: 'SonarQubeToken', installationName: 'Practica4SonarQube') {
+                withSonarQubeEnv(credentialsId: 'SonarToken', installationName: 'Practica4SonarQube') {
                     sh '''
                     ${scannerHome}/bin/sonar-scanner \
                     -D sonar.host.url=http://34.133.197.215:9000 \
