@@ -66,8 +66,8 @@ pipeline {
                     sh 'terraform --version'
                     sh 'terraform init -reconfigure'
                     sh 'terraform validate'
-                    sh 'terraform apply -input=false -auto-approve -var --destroy'
-                    sh 'terraform plan -lock=false -var -out "planfile"'
+                    sh 'terraform apply -input=false -auto-approve --destroy'
+                    sh 'terraform plan -lock=false -out "planfile"'
                     sh 'terraform apply -lock=false -input=false "planfile"'
                 }
             }
