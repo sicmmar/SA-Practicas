@@ -11,6 +11,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS=credentials('docker-hub-cred')
+        PRIV_KEY=credentials('PRIV_KEY')
     }
 
     stages {
@@ -65,8 +66,8 @@ pipeline {
                     sh 'terraform --version'
                     sh 'terraform init -reconfigure'
                     sh 'terraform validate'
-                    sh 'terraform apply -input=false -auto-approve -var "privatekeypath=${PRIV_KEY}" --destroy'
-                    sh 'terraform plan -lock=false -var "privatekeypath=${PRIV_KEY}" -out "planfile"'
+                    sh 'terraform apply -input=false -auto-approve -var "privatekeypath=$PRIV_KEY" --destroy'
+                    sh 'terraform plan -lock=false -var "privatekeypath=$PRIV_KEY" -out "planfile"'
                     sh 'terraform apply -lock=false -input=false "planfile"'
                 }
             }
