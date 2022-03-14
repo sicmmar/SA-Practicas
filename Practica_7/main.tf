@@ -15,10 +15,6 @@ provider "google" {
   zone    = "us-east1-c"
 }
 
-variable "privatekeypath" {
-    type = string
-}
-
 resource "google_compute_firewall" "firewall" {
     name    = "f-externalssh"
     network = "default"
@@ -88,7 +84,7 @@ resource "google_compute_instance" "desarrollo" {
             type = "ssh"
             user = "ubuntu"
             host = google_compute_address.stat1.address
-            private_key = var.privatekeypath
+            private_key = file("./creds/private_rsa")
         }
     }
     
@@ -133,7 +129,7 @@ resource "google_compute_instance" "produccion" {
             type = "ssh"
             user = "ubuntu"
             host = google_compute_address.stat2.address
-            private_key = var.privatekeypath
+            private_key = file("./creds/private_rsa")
         }
     }
     
