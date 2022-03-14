@@ -7,3 +7,10 @@ Practica_1/tk_sha.js
 
 # archivos ignorados para la práctica 2
 Practica_2/App/.vscode/
+
+# archivos ignorados para la práctica 7
+Practica_7/creds/creds-gcp.json
+Practica_7/terraform.*
+Practica_7/.terraform.*
+Practica_7/planfile
+Practica_7/.terraform/

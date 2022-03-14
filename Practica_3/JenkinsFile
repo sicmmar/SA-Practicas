@@ -24,6 +24,7 @@ pipeline {
             steps {
                 dir('Practica_2/App'){
                     sh 'npm install'
+                    sh 'docker rmi app-practica6:latest'
                     sh 'docker build -t app-practica6:latest .'
                     sh 'docker ps -a'
                 }
@@ -62,6 +63,11 @@ pipeline {
             steps {
                 dir('Practica_7'){
                     sh 'terraform --version'
+                    sh 'terraform init -reconfigure'
+                    sh 'terraform validate'
+                    sh 'terraform apply -input=false -auto-approve -var "privatekeypath=${PRIV_KEY}" --destroy'
+                    sh 'terraform plan -lock=false -var "privatekeypath=${PRIV_KEY}" -out "planfile"'
+                    sh 'terraform apply -lock=false -input=false "planfile"'
                 }
             }
         }
